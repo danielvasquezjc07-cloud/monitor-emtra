@@ -1,0 +1,43 @@
+name: Monitor medianoche EMTRA
+
+# Revisa cada 1 minuto de 11:30 p.m. a 12:40 a.m. (hora Colombia)
+on:
+  schedule:
+    - cron: "30 4 * * *"   # 04:30 UTC = 11:30 p.m. Colombia
+  workflow_dispatch:
+
+concurrency:
+  group: monitor-emtra
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: notificados.json
+          key: notificados-${{ github.run_id }}
+          restore-keys: notificados-
+
+      - name: Revisar citas cada minuto
+        run: dotnet run -c Release -- loop
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          SOLO_DIAS: sabado
+          INTERVALO_MIN: "1"
+          DURACION_MIN: "70"
+
+      - uses: actions/cache/save@v4
+        if: always() && hashFiles('notificados.json') != ''
+        with:
+          path: notificados.json
+          key: notificados-${{ github.run_id }}
