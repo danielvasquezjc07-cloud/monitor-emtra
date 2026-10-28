@@ -10,6 +10,9 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: monitor-emtra
+
 jobs:
   revisar:
     runs-on: ubuntu-latest
