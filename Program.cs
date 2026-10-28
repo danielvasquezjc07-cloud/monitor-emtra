@@ -23,6 +23,14 @@ var intervalo = TimeSpan.FromMinutes(10);
 using var http = new HttpClient { BaseAddress = new Uri(BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
 http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 MonitorCitas");
 
+
+if (Environment.GetEnvironmentVariable("PRUEBA_CORREO") == "true")
+{
+    await EnviarCorreoAsync("✅ Prueba Monitor EMTRA", "Si ves este correo, los avisos de citas funcionan.");
+    Console.WriteLine("Correo de prueba enviado.");
+    return;
+}
+
 do
 {
     try
