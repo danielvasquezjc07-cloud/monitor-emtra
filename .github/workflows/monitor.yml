@@ -3,7 +3,12 @@ name: Monitor citas EMTRA
 on:
   schedule:
     - cron: "*/10 * * * *"   # cada 10 min (GitHub puede retrasarlo unos minutos)
-  workflow_dispatch:              # botón para ejecutarlo a mano
+    workflow_dispatch:
+    inputs:
+      prueba_correo:
+        description: "Enviar correo de prueba"
+        type: boolean
+        default: false
 
 jobs:
   revisar:
