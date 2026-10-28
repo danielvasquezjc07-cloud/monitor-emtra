@@ -18,7 +18,9 @@ using System.Text.Json;
 const string BaseUrl = "https://agendamiento.emtra.com.co/api/v1/public/";
 const string TramiteUuid = "b4b551e3-c2fb-4ec5-8ece-031c21c47e59"; // TRASPASO DE PROPIEDAD VEHICULO
 const string ArchivoEstado = "notificados.json";
-var intervalo = TimeSpan.FromMinutes(10);
+var intervalo = TimeSpan.FromMinutes(double.TryParse(Environment.GetEnvironmentVariable("INTERVALO_MIN"), out var im) ? im : 10);
+var duracion = double.TryParse(Environment.GetEnvironmentVariable("DURACION_MIN"), out var dm) ? TimeSpan.FromMinutes(dm) : TimeSpan.MaxValue;
+var inicio = DateTime.UtcNow;
 
 using var http = new HttpClient { BaseAddress = new Uri(BaseUrl), Timeout = TimeSpan.FromSeconds(30) };
 http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 MonitorCitas");
@@ -43,7 +45,7 @@ do
         if (!args.Contains("loop")) Environment.ExitCode = 1;
     }
     if (args.Contains("loop")) await Task.Delay(intervalo);
-} while (args.Contains("loop"));
+} while (args.Contains("loop") && DateTime.UtcNow - inicio < duracion);
 
 async Task RevisarAsync()
 {
