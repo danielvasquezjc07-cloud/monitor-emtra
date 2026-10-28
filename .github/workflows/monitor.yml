@@ -1,0 +1,38 @@
+name: Monitor citas EMTRA
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # cada 10 min (GitHub puede retrasarlo unos minutos)
+  workflow_dispatch:              # botón para ejecutarlo a mano
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      # Recupera la lista de cupos ya notificados en la ejecución anterior
+      - uses: actions/cache/restore@v4
+        with:
+          path: notificados.json
+          key: notificados-${{ github.run_id }}
+          restore-keys: notificados-
+
+      - name: Revisar citas
+        run: dotnet run -c Release
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          SOLO_DIAS: sabado   # borra esta línea para vigilar todos los días
+
+      - uses: actions/cache/save@v4
+        if: always() && hashFiles('notificados.json') != ''
+        with:
+          path: notificados.json
+          key: notificados-${{ github.run_id }}
