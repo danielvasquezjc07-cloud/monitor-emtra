@@ -2,8 +2,8 @@ name: Monitor citas EMTRA
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # cada 10 min (GitHub puede retrasarlo unos minutos)
-    workflow_dispatch:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
     inputs:
       prueba_correo:
         description: "Enviar correo de prueba"
@@ -21,7 +21,6 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      # Recupera la lista de cupos ya notificados en la ejecución anterior
       - uses: actions/cache/restore@v4
         with:
           path: notificados.json
@@ -34,6 +33,7 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
+          SOLO_DIAS: sabado
           PRUEBA_CORREO: ${{ inputs.prueba_correo }}
 
       - uses: actions/cache/save@v4
