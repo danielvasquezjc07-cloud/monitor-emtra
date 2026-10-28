@@ -93,7 +93,8 @@ async Task EnviarCorreoAsync(string asunto, string cuerpo)
 {
     var user = Environment.GetEnvironmentVariable("GMAIL_USER");
     var pass = Environment.GetEnvironmentVariable("GMAIL_APP_PASSWORD");
-    var to = Environment.GetEnvironmentVariable("MAIL_TO") ?? user;
+    var to = Environment.GetEnvironmentVariable("MAIL_TO");
+    if (string.IsNullOrWhiteSpace(to)) to = user;
 
     if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(pass))
     {
